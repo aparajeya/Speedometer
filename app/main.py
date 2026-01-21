@@ -3,7 +3,7 @@ import asyncio
 import threading
 
 from app.ws_manager import ConnectionManager
-from app.pg_listener import listen_for_speed
+from listener.pg_listener import listen_for_speed
 
 app = FastAPI()
 manager = ConnectionManager()
