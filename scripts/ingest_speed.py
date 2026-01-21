@@ -14,7 +14,7 @@ def main():
     conn.autocommit = True
     cur = conn.cursor()
 
-    # 1. Create table
+    # Creating table
     cur.execute("""
         CREATE TABLE IF NOT EXISTS vehicle_speed (
             time TIMESTAMPTZ NOT NULL,
@@ -22,7 +22,7 @@ def main():
         );
     """)
 
-    # 2. Convert to hypertable
+    # Converting to hypertable
     cur.execute("""
         SELECT create_hypertable(
             'vehicle_speed',
@@ -31,11 +31,20 @@ def main():
         );
     """)
 
-    print("🚀 Started inserting speed data every 1 second...")
+    print("Started inserting speed data every 1 second...")
+    last_speed = random.uniform(20, 120)  # initial speed
 
     try:
         while True:
-            speed = round(random.uniform(20, 120), 2)  # km/h
+            delta = random.uniform(-10, 10)
+            speed = last_speed + delta
+
+            # Clamp speed between 0 and 200
+            speed = max(0, min(200, speed))
+
+            # Round to 2 decimals
+            speed = round(speed, 2)
+
             now = datetime.now(timezone.utc)
 
             cur.execute(
@@ -44,14 +53,18 @@ def main():
             )
 
             print(f"{now.isoformat()} | Speed: {speed} km/h")
+
+            last_speed = speed  # update for next iteration
             time.sleep(1)
 
     except KeyboardInterrupt:
-        print("\n🛑 Stopped by user")
-
+        print("Stopped by user")
+    
+    
     finally:
         cur.close()
         conn.close()
+
 
 if __name__ == "__main__":
     main()
